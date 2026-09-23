@@ -1,0 +1,63 @@
+name: CI Pipeline - User Management API
+
+# Menentukan kapan pipeline ini berjalan
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Menyediakan layanan database PostgreSQL secara instan di server GitHub
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: user_admin
+          POSTGRES_PASSWORD: password_aman
+          POSTGRES_DB: db_user_Management
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    # 1. Mengambil kode dari repository GitHub Anda
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # 2. Menyiapkan lingkungan Node.js
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    # 3. Menginstal modul/dependensi
+    - name: Install Dependencies
+      run: npm install
+
+    # 4. Melakukan sinkronisasi database menggunakan Prisma
+    - name: Run Prisma Database Push
+      env:
+        DATABASE_URL: postgresql://user_admin:password_aman@localhost:5432/db_user_Management?schema=public
+        JWT_SECRET: rahasia_super_securing_jwt_2026
+      run: npx prisma db push
+
+    # 5. Menjalankan skrip pengujian otomatis (Jest)
+    - name: Run Automated Tests (Jest)
+      env:
+        DATABASE_URL: postgresql://user_admin:password_aman@localhost:5432/db_user_Management?schema=public
+        JWT_SECRET: rahasia_super_securing_jwt_2026
+        NODE_ENV: test
+      run: npm test

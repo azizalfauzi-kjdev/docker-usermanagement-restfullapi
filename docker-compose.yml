@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: password_aman
+      POSTGRES_DB: db_user_Management
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://user_admin:password_aman@db:5432/db_user_Management?schema=public
+      - JWT_SECRET=rahasia_super_securing_jwt_2026
+    depends_on:
+      - db
+    command: sh -c "npx prisma db push && npm run dev"
+
+volumes:
+  postgres_data:
