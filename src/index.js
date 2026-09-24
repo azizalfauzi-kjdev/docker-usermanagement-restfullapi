@@ -45,11 +45,10 @@ app.use("/users", userRoutes);
 app.use(errorHandler);
 
 
-// Hanya jalankan app.listen jika TIDAK sedang dalam mode testing
-if (process.env.NODE_ENV !== 'test') {
+// Jangan jalankan app.listen jika sedang di Vercel atau Test
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(port, () => {
     console.log(`Server berjalan di port ${port}`);
-    console.log(`Dokumentasi Swagger tersedia di http://localhost:${port}/api-docs`);
   });
 }
 
