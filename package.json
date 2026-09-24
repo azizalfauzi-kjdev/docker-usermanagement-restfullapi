@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Backend API dengan Auth, Prisma ORM, Validation, dan Swagger",
   "main": "src/index.js",
-  "scripts": {
+ "scripts": {
     "dev": "node --watch src/index.js",
+    "start": "npx prisma db push && node src/index.js",
     "test": "NODE_ENV=test jest --detectOpenHandles --forceExit --runInBand"
   },
   "dependencies": {
